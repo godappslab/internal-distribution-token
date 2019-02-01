@@ -1,0 +1,13 @@
+sequenceDiagram
+Title: オーナーが配布者を抹消
+participant Human AS オーナー
+participant TOKEN
+participant 残高 AS 配布者の残高
+participant 配布者リスト
+participant 全体　AS ブロックチェーン全体
+
+Human->>TOKEN: addToDistributor()
+TOKEN->>残高: 残高を確認(0であること)
+TOKEN->>配布者リスト: 抹消
+TOKEN->>全体: emit RevokedFromDistributor()
+TOKEN-->>Human: 処理結果

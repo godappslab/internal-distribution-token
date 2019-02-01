@@ -1,0 +1,15 @@
+sequenceDiagram
+Title: 配布者がユーザーにトークン配布
+
+participant Human AS 配布者
+participant TOKEN
+participant BALANCE_A AS 配布者のトークン
+participant BALANCE_B AS ユーザーのトークン
+participant 全体　AS ブロックチェーン全体
+
+Human->>TOKEN: transfer()
+TOKEN->>BALANCE_A: 数量を減らす
+TOKEN->>BALANCE_B: 数量を増やす
+TOKEN->>全体: emit Transfer()
+TOKEN->>全体: emit Distribute()
+TOKEN-->>Human: 処理完了

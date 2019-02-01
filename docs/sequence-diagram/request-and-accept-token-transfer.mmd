@@ -1,0 +1,21 @@
+sequenceDiagram
+Title: ユーザーがトークンのトークン交換の申請を行う
+
+participant User AS ユーザー
+participant Owner AS オーナー
+participant TOKEN
+participant BALANCE_A AS ユーザーのトークン
+participant BALANCE_B AS オーナーのトークン
+participant 全体　AS ブロックチェーン全体
+
+User->>TOKEN: requestTokenTransfer()
+TOKEN->>TOKEN: 署名計算
+TOKEN-->>User: 処理結果
+User-->>Owner: トークン交換の申請を連絡（署名を伝える）
+Owner->>TOKEN: acceptTokenTransfer()
+TOKEN->>TOKEN: 署名計算
+TOKEN->>BALANCE_A: 数量を減らす
+TOKEN->>BALANCE_B: 数量を増やす
+TOKEN->>全体: emit Transfer()
+TOKEN->>全体: emit Exchange()
+TOKEN-->>Owner: 処理結果

@@ -1,0 +1,15 @@
+sequenceDiagram
+Title: オーナーが配布者にトークンを割当
+
+participant Human AS オーナー
+participant TOKEN
+participant BALANCE_A AS オーナーのトークン
+participant BALANCE_B AS 配布者のトークン
+participant 全体　AS ブロックチェーン全体
+
+Human->>TOKEN: transfer()
+TOKEN->>BALANCE_A: 数量を減らす
+TOKEN->>BALANCE_B: 数量を増やす
+TOKEN->>全体: emit Transfer()
+TOKEN->>全体: emit Allocate()
+TOKEN-->>Human: 処理結果
