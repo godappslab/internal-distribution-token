@@ -10,4 +10,5 @@ node_modules/
 
 ! .gitignore
 
+build/
 private_file/
