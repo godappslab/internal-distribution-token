@@ -1,5 +1,7 @@
 # Implementation of ``Internal Circulation Token''
 
+It is under development.
+
 ## 概要
 
 流通やその価値が管理された内部流通トークンを実装する。
