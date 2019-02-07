@@ -1,5 +1,4 @@
 const InternalCirculationToken = artifacts.require('InternalCirculationToken');
-const Web3 = require('web3');
 
 contract('[TEST] InternalCirculationToken', async (accounts) => {
     const totalSupply = 1000000000;
@@ -22,8 +21,6 @@ contract('[TEST] InternalCirculationToken', async (accounts) => {
         log('User       :', userValue.toNumber());
         log('Other      :', otherValue.toNumber());
     };
-
-    const myWeb3 = new Web3(web3.currentProvider.host);
 
     it(`Initial state is the owner address token holding number: ${totalSupply}`, async () => {
         const token = await InternalCirculationToken.deployed();
