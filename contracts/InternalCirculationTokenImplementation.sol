@@ -223,6 +223,13 @@ contract InternalCirculationTokenImplementation is FunctionalizedERC20, Internal
 
     }
 
+    // @title Returns whether it is a used signature
+    // @params _signature Signature string
+    // @return bool Used or not
+    function isUsedSignature(bytes _signature) external view returns (bool) {
+        return usedSignatures[_signature];
+    }
+
     ///////////////////////////////////////////////////////////////////////
     // private functions
     ///////////////////////////////////////////////////////////////////////

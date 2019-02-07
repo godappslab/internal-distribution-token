@@ -34,6 +34,11 @@ interface InternalCirculationTokenInterface {
     // @dev The user signs the hash value obtained from this function and hands it over to the owner outside the system
     function requestTokenTransfer(address _requested_user, uint256 _value, string _nonce) external view returns (bytes32);
 
+    // @title Returns whether it is a used signature
+    // @params _signature Signature string
+    // @return bool Used or not
+    function isUsedSignature(bytes _signature) external view returns (bool);
+
     // Events
 
     // token assignment from owner to distributor
