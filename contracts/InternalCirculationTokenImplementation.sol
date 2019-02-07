@@ -39,7 +39,7 @@ contract InternalCirculationTokenImplementation is FunctionalizedERC20, Internal
 
     // Only the owner can do it
     modifier onlyOwner() {
-        require(isOwner(msg.sender));
+        require(isOwner(msg.sender), "Only owners can use");
         _;
     }
 
@@ -77,7 +77,7 @@ contract InternalCirculationTokenImplementation is FunctionalizedERC20, Internal
 
     // Only the distributor can do it
     modifier onlyDistributor() {
-        require(this.isDistributor(msg.sender));
+        require(this.isDistributor(msg.sender), "Only distributors can use");
         _;
     }
 
@@ -93,16 +93,16 @@ contract InternalCirculationTokenImplementation is FunctionalizedERC20, Internal
     // @return bool
     function addToDistributor(address _account) external onlyOwner returns (bool success) {
         // `_account` is a correct address
-        require(_account != address(0));
+        require(_account != address(0), "Correct EOA address is required");
 
         // `_account` is necessary to have no token
-        require(_balances[_account] == 0);
+        require(_balances[_account] == 0, "This EOA address has a token");
 
         // `_account` is not an owner or a distributor
-        require(this.isOwner(_account) == false && this.isDistributor(_account) == false);
+        require(this.isOwner(_account) == false && this.isDistributor(_account) == false, "This EOA address can not be a distributor");
 
         // `_account` is not a contract address
-        require(_account.isContract() == false);
+        require(_account.isContract() == false, "Contract address can not be specified");
 
         // Add to distributor
         Distributors.add(_account);
@@ -117,10 +117,10 @@ contract InternalCirculationTokenImplementation is FunctionalizedERC20, Internal
     // @return bool
     function deleteFromDistributor(address _account) external onlyOwner returns (bool success) {
         // `_account` is a correct address
-        require(_account != address(0));
+        require(_account != address(0), "Correct EOA address is required");
 
         // `_account` is necessary to have no token
-        require(_balances[_account] == 0);
+        require(_balances[_account] == 0, "This EOA address has a token");
 
         // Delete from distributor
         Distributors.remove(_account);
@@ -146,16 +146,16 @@ contract InternalCirculationTokenImplementation is FunctionalizedERC20, Internal
         // Identify the requester's ETH Address
         address _user = hashedTx.recover(_signature);
 
-        require(_user != address(0));
+        require(_user != address(0), "Unable to get EOA address from signature");
 
         // the argument `_requested_user` and
         // the value obtained by calculation from the signature are the same ETH address
         //
         // If they are different, it is judged that the user's request has not been transmitted correctly
-        require(_user == _requested_user);
+        require(_user == _requested_user, "EOA address mismatch");
 
         // user has the amount of that token
-        require(this.balanceOf(_user) >= _value);
+        require(this.balanceOf(_user) >= _value, "Insufficient funds");
 
         _balances[_user] = _balances[_user].sub(_value);
         _balances[msg.sender] = _balances[msg.sender].add(_value);
@@ -187,12 +187,12 @@ contract InternalCirculationTokenImplementation is FunctionalizedERC20, Internal
     // @return bool (true)
     // @dev
     function transfer(address _to, uint256 _value) external returns (bool success) {
-        require(_to != address(0));
+        require(_to != address(0), "The remittance destination needs a correct address");
 
         //
         // Only the owner or distributor can use this function
         //
-        require(this.isOwner(msg.sender) || this.isDistributor(msg.sender));
+        require(this.isOwner(msg.sender) || this.isDistributor(msg.sender), "Only owner or distributor can use");
 
         if (this.isOwner(msg.sender) && this.isDistributor(_to)) {
             //
@@ -217,7 +217,7 @@ contract InternalCirculationTokenImplementation is FunctionalizedERC20, Internal
         //
         // Otherwise do not process
         //
-        revert();
+        revert("Transfer source and destination are out of operating conditions");
 
         return false;
 
@@ -265,9 +265,9 @@ contract InternalCirculationTokenImplementation is FunctionalizedERC20, Internal
 
     // @title Token movement processing (common internal processing)
     function _transfer(address _to, uint256 _value) private returns (bool success) {
-        require(_to.isContract() == false);
+        require(_to.isContract() == false, "Can not transfer to contract address");
 
-        if (this.balanceOf(msg.sender) < _value) revert();
+        if (this.balanceOf(msg.sender) < _value) revert("Insufficient funds");
 
         _balances[msg.sender] = _balances[msg.sender].sub(_value);
         _balances[_to] = _balances[_to].add(_value);

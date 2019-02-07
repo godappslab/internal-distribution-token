@@ -9,7 +9,7 @@ contract InternalCirculationToken is InternalCirculationTokenImplementation {
     // Modification : Only an owner can carry out.
     // ---------------------------------------------
     modifier onlyOwner() {
-        require(msg.sender == owner);
+        require(msg.sender == owner, "Only owners can use");
         _;
     }
 
