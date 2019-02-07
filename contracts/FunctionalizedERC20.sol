@@ -1,4 +1,4 @@
-pragma solidity >=0.4.21<0.6.0;
+pragma solidity >=0.4.24<0.6.0;
 
 interface FunctionalizedERC20 {
     function balanceOf(address who) external view returns (uint256);

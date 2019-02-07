@@ -1,4 +1,4 @@
-pragma solidity >=0.4.21<0.6.0;
+pragma solidity >=0.4.24<0.6.0;
 
 import "zeppelin-solidity/contracts/math/SafeMath.sol";
 import "zeppelin-solidity/contracts/AddressUtils.sol";
