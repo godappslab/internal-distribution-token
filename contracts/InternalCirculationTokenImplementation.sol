@@ -165,7 +165,7 @@ contract InternalCirculationTokenImplementation is FunctionalizedERC20, Internal
 
         // Execute events
         emit Transfer(_user, msg.sender, _value);
-        emit Exchange(_user, msg.sender, _value);
+        emit Exchange(_user, msg.sender, _value, _signature, _nonce);
 
         return true;
     }

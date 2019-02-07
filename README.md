@@ -1,6 +1,6 @@
-# Implementation of ``Internal Circulation Token''
+# Implementation of "Internal Circulation Token"
 
-It is under development.
+*It is under development.*
 
 ## 概要
 
@@ -55,7 +55,7 @@ ERC20 トークンのような使い勝手でありながら、ユーザーが�
 **トークンのインターフェース**
 
 ```solidity
-pragma solidity >=0.4.21<0.6.0;
+pragma solidity >=0.4.24<0.6.0;
 
 interface InternalCirculationTokenInterface {
     // Required methods
@@ -108,7 +108,7 @@ interface InternalCirculationTokenInterface {
     event BackTo(address indexed from, address indexed to, uint256 value);
 
     // owner accepted the token from the user
-    event Exchange(address indexed from, address indexed to, uint256 value);
+    event Exchange(address indexed from, address indexed to, uint256 value, bytes signature, string nonce);
 
     event AddedToDistributor(address indexed account);
     event DeletedFromDistributor(address indexed account);
@@ -126,16 +126,16 @@ interface InternalCirculationTokenInterface {
     // @return bool
     function addToDistributor(address _account) external onlyOwner returns (bool success) {
         // `_account` is a correct address
-        require(_account != address(0));
+        require(_account != address(0), "Correct EOA address is required");
 
         // `_account` is necessary to have no token
-        require(_balances[_account] == 0);
+        require(_balances[_account] == 0, "This EOA address has a token");
 
         // `_account` is not an owner or a distributor
-        require(this.isOwner(_account) == false && this.isDistributor(_account) == false);
+        require(this.isOwner(_account) == false && this.isDistributor(_account) == false, "This EOA address can not be a distributor");
 
         // `_account` is not a contract address
-        require(_account.isContract() == false);
+        require(_account.isContract() == false, "Contract address can not be specified");
 
         // Add to distributor
         Distributors.add(_account);
@@ -152,10 +152,10 @@ interface InternalCirculationTokenInterface {
     // @return bool
     function deleteFromDistributor(address _account) external onlyOwner returns (bool success) {
         // `_account` is a correct address
-        require(_account != address(0));
+        require(_account != address(0), "Correct EOA address is required");
 
         // `_account` is necessary to have no token
-        require(_balances[_account] == 0);
+        require(_balances[_account] == 0, "This EOA address has a token");
 
         // Delete from distributor
         Distributors.remove(_account);
@@ -218,16 +218,16 @@ interface InternalCirculationTokenInterface {
         // Identify the requester's ETH Address
         address _user = hashedTx.recover(_signature);
 
-        require(_user != address(0));
+        require(_user != address(0), "Unable to get EOA address from signature");
 
         // the argument `_requested_user` and
         // the value obtained by calculation from the signature are the same ETH address
         //
         // If they are different, it is judged that the user's request has not been transmitted correctly
-        require(_user == _requested_user);
+        require(_user == _requested_user, "EOA address mismatch");
 
         // user has the amount of that token
-        require(this.balanceOf(_user) >= _value);
+        require(this.balanceOf(_user) >= _value, "Insufficient funds");
 
         _balances[_user] = _balances[_user].sub(_value);
         _balances[msg.sender] = _balances[msg.sender].add(_value);
@@ -237,7 +237,7 @@ interface InternalCirculationTokenInterface {
 
         // Execute events
         emit Transfer(_user, msg.sender, _value);
-        emit Exchange(_user, msg.sender, _value);
+        emit Exchange(_user, msg.sender, _value, _signature, _nonce);
 
         return true;
     }

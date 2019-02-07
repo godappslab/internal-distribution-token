@@ -51,7 +51,7 @@ interface InternalCirculationTokenInterface {
     event BackTo(address indexed from, address indexed to, uint256 value);
 
     // owner accepted the token from the user
-    event Exchange(address indexed from, address indexed to, uint256 value);
+    event Exchange(address indexed from, address indexed to, uint256 value, bytes signature, string nonce);
 
     event AddedToDistributor(address indexed account);
     event DeletedFromDistributor(address indexed account);
