@@ -279,6 +279,10 @@ interface InternalCirculationTokenInterface {
 
 https://github.com/godappslab/internal-circulation-token
 
+ウェブサイトからも、このトークンを操作することができる。（現在は Ropsten Test Network のみ利用可能）
+
+https://lab.godapps.io/points/
+
 ## 参考文献
 
 **Standards**
