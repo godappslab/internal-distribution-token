@@ -1,4 +1,4 @@
-# Implementation of "Internal Circulation Token"
+# Implementation of "Internal Distribution Token"
 Internal Distribution Token
 *It is under development.*
 
@@ -55,7 +55,7 @@ ERC20 トークンのような使い勝手でありながら、ユーザーが�
 ```solidity
 pragma solidity >=0.4.24<0.6.0;
 
-interface InternalCirculationTokenInterface {
+interface InternalDistributionTokenInterface {
     // Required methods
 
     // @title Is the ETH address of the argument the distributor of the token?
@@ -291,7 +291,7 @@ https://github.com/MetaMask/metamask-extension/issues/1530
 
 トークンの実装は GitHub にて公開する。
 
-https://github.com/godappslab/internal-circulation-token
+https://github.com/godappslab/internal-distribution-token
 
 ウェブサイトからも、このトークンを操作することができる。（現在は Ropsten Test Network のみ利用可能）
 
