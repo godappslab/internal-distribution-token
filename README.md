@@ -1,5 +1,5 @@
 # Implementation of "Internal Circulation Token"
-
+Internal Distribution Token
 *It is under development.*
 
 ## 概要
@@ -168,7 +168,7 @@ interface InternalCirculationTokenInterface {
 
 `requestTokenTransfer()` を実行することにより、次の情報をハッシュ化する。
 
--   送金をリクエストしているユーザーの ETH アドレス
+-   送金をリクエストしているユーザーの EOA アドレス
 -   送金したい数量
 -   送金のリクエストを識別する文字列 `_nonce`
 
@@ -195,7 +195,7 @@ interface InternalCirculationTokenInterface {
 オーナーはユーザーより次の値を受け取り、`acceptTokenTransfer()` 関数を実行する。
 
 -   署名文字列
--   送金したいユーザーの ETH アドレス
+-   送金したいユーザーの EOA アドレス
 -   送りたいトークンの数
 -   署名時の `_nonce` の値
 
@@ -266,6 +266,20 @@ interface InternalCirculationTokenInterface {
 ![オーナーが配布者を抹消](./docs/sequence-diagram/delete-from-distributor.svg)
 
 ### 実装上の注意事項
+
+〜現在トークン交換の申請として実装されている署名方式について〜
+
+`web3.eth.sign()` は廃止の予定があるため、EIP-712による署名検証を採用する予定ですが、
+本体には組み込まず、ÐAppsを別のリポジトリで実装の実験を行っています。
+
+- Signing message with eth.sign never finishes · Issue #1530 · MetaMask/metamask-extension
+https://github.com/MetaMask/metamask-extension/issues/1530
+
+- Signature verification implementation for EIP712 https://github.com/godappslab/signature-verification
+
+暫くの間は`web3.eth.sign()`が動作しますが、EIP712 署名へ切り替えていく予定です。
+
+![署名処理の関連図](./docs/flowchart/relationship-of-signature-processing.svg)
 
 ## Test Cases
 

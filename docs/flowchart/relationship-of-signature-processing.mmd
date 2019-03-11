@@ -1,0 +1,10 @@
+graph LR
+user[ユーザー] -- ポイント交換申請 -->  api[API]
+owner[オーナー] --申請の照会 -->api
+api -- 照会を返却 --> owner
+owner -- ポイント交換の実行 --> token[Internal Circulation Token]
+token-- 署名検証 --> eip712sig[TokenExchangeVerification]
+token-- トークン送金 --> token
+eip712sig -- 承認 --> token
+token -- emit Transfer --> owner
+token -- emit Transfer --> user
