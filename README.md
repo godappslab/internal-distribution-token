@@ -53,7 +53,7 @@ ERC20 トークンのような使い勝手でありながら、ユーザーが�
 **トークンのインターフェース**
 
 ```solidity
-pragma solidity >=0.4.24<0.6.0;
+pragma solidity ^0.5.0;
 
 interface InternalDistributionTokenInterface {
     // Required methods
@@ -79,7 +79,9 @@ interface InternalDistributionTokenInterface {
     // @param uint256 _value
     // @param string _nonce
     // @return bool
-    function acceptTokenTransfer(bytes _signature, address _requested_user, uint256 _value, string _nonce) external returns (bool success);
+    function acceptTokenTransfer(bytes calldata _signature, address _requested_user, uint256 _value, string calldata _nonce)
+        external
+        returns (bool success);
 
     // @title A function that generates a hash value of a request to which a user sends a token (executed by the user of the token)
     // @params _requested_user ETH address that requested token transfer
@@ -87,12 +89,12 @@ interface InternalDistributionTokenInterface {
     // @params _nonce One-time string
     // @return bytes32 Hash value
     // @dev The user signs the hash value obtained from this function and hands it over to the owner outside the system
-    function requestTokenTransfer(address _requested_user, uint256 _value, string _nonce) external view returns (bytes32);
+    function requestTokenTransfer(address _requested_user, uint256 _value, string calldata _nonce) external view returns (bytes32);
 
     // @title Returns whether it is a used signature
     // @params _signature Signature string
     // @return bool Used or not
-    function isUsedSignature(bytes _signature) external view returns (bool);
+    function isUsedSignature(bytes calldata _signature) external view returns (bool);
 
     // Events
 
@@ -111,6 +113,7 @@ interface InternalDistributionTokenInterface {
     event AddedToDistributor(address indexed account);
     event DeletedFromDistributor(address indexed account);
 }
+
 ```
 
 **インターフェースでは定義できない仕様を以下に記す**
@@ -187,7 +190,7 @@ interface InternalDistributionTokenInterface {
     // @params _nonce One-time string
     // @return bytes32 Hash value
     // @dev The user signs the hash value obtained from this function and hands it over to the owner outside the system
-    function requestTokenTransfer(address _requested_user, uint256 _value, string _nonce) external view returns (bytes32) {
+    function requestTokenTransfer(address _requested_user, uint256 _value, string calldata _nonce) external view returns (bytes32) {
         return keccak256(abi.encodePacked(address(this), bytes4(0x8210d627), _requested_user, _value, _nonce));
     }
 ```
@@ -206,7 +209,11 @@ interface InternalDistributionTokenInterface {
     // @param uint256 _value
     // @param string _nonce
     // @return bool
-    function acceptTokenTransfer(bytes _signature, address _requested_user, uint256 _value, string _nonce) external onlyOwner returns (bool success) {
+    function acceptTokenTransfer(bytes calldata _signature, address _requested_user, uint256 _value, string calldata _nonce)
+        external
+        onlyOwner
+        returns (bool success)
+    {
         // argument `_signature` is not yet used
         require(usedSignatures[_signature] == false);
 
@@ -277,7 +284,7 @@ https://github.com/MetaMask/metamask-extension/issues/1530
 
 - Signature verification implementation for EIP712 https://github.com/godappslab/signature-verification
 
-暫くの間は`web3.eth.sign()`が動作しますが、EIP712 署名へ切り替えていく予定です。
+しばらくの間は`web3.eth.sign()`が動作しますが、EIP712 署名へ切り替えていく予定です。
 
 ![署名処理の関連図](./docs/flowchart/relationship-of-signature-processing.svg)
 
