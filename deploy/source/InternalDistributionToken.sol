@@ -1,12 +1,262 @@
 pragma solidity ^0.5.0;
 
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
-import "openzeppelin-solidity/contracts/Utils/Address.sol";
-import "openzeppelin-solidity/contracts/cryptography/ECDSA.sol";
-import "openzeppelin-solidity/contracts/access/Roles.sol";
+/**
+ * @title SafeMath
+ * @dev Unsigned math operations with safety checks that revert on error
+ */
+library SafeMath {
+    /**
+    * @dev Multiplies two unsigned integers, reverts on overflow.
+    */
+    function mul(uint256 a, uint256 b) internal pure returns (uint256) {
+        // Gas optimization: this is cheaper than requiring 'a' not being zero, but the
+        // benefit is lost if 'b' is also tested.
+        // See: https://github.com/OpenZeppelin/openzeppelin-solidity/pull/522
+        if (a == 0) {
+            return 0;
+        }
 
-import "./InternalCirculationTokenInterface.sol";
-import "./FunctionalizedERC20.sol";
+        uint256 c = a * b;
+        require(c / a == b);
+
+        return c;
+    }
+
+    /**
+    * @dev Integer division of two unsigned integers truncating the quotient, reverts on division by zero.
+    */
+    function div(uint256 a, uint256 b) internal pure returns (uint256) {
+        // Solidity only automatically asserts when dividing by 0
+        require(b > 0);
+        uint256 c = a / b;
+        // assert(a == b * c + a % b); // There is no case in which this doesn't hold
+
+        return c;
+    }
+
+    /**
+    * @dev Subtracts two unsigned integers, reverts on overflow (i.e. if subtrahend is greater than minuend).
+    */
+    function sub(uint256 a, uint256 b) internal pure returns (uint256) {
+        require(b <= a);
+        uint256 c = a - b;
+
+        return c;
+    }
+
+    /**
+    * @dev Adds two unsigned integers, reverts on overflow.
+    */
+    function add(uint256 a, uint256 b) internal pure returns (uint256) {
+        uint256 c = a + b;
+        require(c >= a);
+
+        return c;
+    }
+
+    /**
+    * @dev Divides two unsigned integers and returns the remainder (unsigned integer modulo),
+    * reverts when dividing by zero.
+    */
+    function mod(uint256 a, uint256 b) internal pure returns (uint256) {
+        require(b != 0);
+        return a % b;
+    }
+}
+
+/**
+ * Utility library of inline functions on addresses
+ */
+library Address {
+    /**
+     * Returns whether the target address is a contract
+     * @dev This function will return false if invoked during the constructor of a contract,
+     * as the code is not actually created until after the constructor finishes.
+     * @param account address of the account to check
+     * @return whether the target address is a contract
+     */
+    function isContract(address account) internal view returns (bool) {
+        uint256 size;
+        // XXX Currently there is no better way to check if there is a contract in an address
+        // than to check the size of the code at that address.
+        // See https://ethereum.stackexchange.com/a/14016/36603
+        // for more details about how this works.
+        // TODO Check this again before the Serenity release, because all addresses will be
+        // contracts then.
+        // solhint-disable-next-line no-inline-assembly
+        assembly {
+            size := extcodesize(account)
+        }
+        return size > 0;
+    }
+}
+
+/**
+ * @title Elliptic curve signature operations
+ * @dev Based on https://gist.github.com/axic/5b33912c6f61ae6fd96d6c4a47afde6d
+ * TODO Remove this library once solidity supports passing a signature to ecrecover.
+ * See https://github.com/ethereum/solidity/issues/864
+ */
+
+library ECDSA {
+    /**
+     * @dev Recover signer address from a message by using their signature
+     * @param hash bytes32 message, the hash is the signed message. What is recovered is the signer address.
+     * @param signature bytes signature, the signature is generated using web3.eth.sign()
+     */
+    function recover(bytes32 hash, bytes memory signature) internal pure returns (address) {
+        bytes32 r;
+        bytes32 s;
+        uint8 v;
+
+        // Check the signature length
+        if (signature.length != 65) {
+            return (address(0));
+        }
+
+        // Divide the signature in r, s and v variables
+        // ecrecover takes the signature parameters, and the only way to get them
+        // currently is to use assembly.
+        // solhint-disable-next-line no-inline-assembly
+        assembly {
+            r := mload(add(signature, 0x20))
+            s := mload(add(signature, 0x40))
+            v := byte(0, mload(add(signature, 0x60)))
+        }
+
+        // Version of signature should be 27 or 28, but 0 and 1 are also possible versions
+        if (v < 27) {
+            v += 27;
+        }
+
+        // If the version is correct return the signer address
+        if (v != 27 && v != 28) {
+            return (address(0));
+        } else {
+            return ecrecover(hash, v, r, s);
+        }
+    }
+
+    /**
+     * toEthSignedMessageHash
+     * @dev prefix a bytes32 value with "\x19Ethereum Signed Message:"
+     * and hash the result
+     */
+    function toEthSignedMessageHash(bytes32 hash) internal pure returns (bytes32) {
+        // 32 is the length in bytes of hash,
+        // enforced by the type signature above
+        return keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", hash));
+    }
+}
+
+/**
+ * @title Roles
+ * @dev Library for managing addresses assigned to a Role.
+ */
+library Roles {
+    struct Role {
+        mapping(address => bool) bearer;
+    }
+
+    /**
+     * @dev give an account access to this role
+     */
+    function add(Role storage role, address account) internal {
+        require(account != address(0));
+        require(!has(role, account));
+
+        role.bearer[account] = true;
+    }
+
+    /**
+     * @dev remove an account's access to this role
+     */
+    function remove(Role storage role, address account) internal {
+        require(account != address(0));
+        require(has(role, account));
+
+        role.bearer[account] = false;
+    }
+
+    /**
+     * @dev check if an account has this role
+     * @return bool
+     */
+    function has(Role storage role, address account) internal view returns (bool) {
+        require(account != address(0));
+        return role.bearer[account];
+    }
+}
+
+interface InternalCirculationTokenInterface {
+    // Required methods
+
+    // @title Is the ETH address of the argument the distributor of the token?
+    // @param _account
+    // @return bool (true:owner false:not owner)
+    function isDistributor(address _account) external view returns (bool);
+
+    // @title A function that adds the ETH address of the argument to the distributor list of the token
+    // @param _account ETH address you want to add
+    // @return bool
+    function addToDistributor(address _account) external returns (bool success);
+
+    // @title A function that excludes the ETH address of the argument from the distributor list of the token
+    // @param _account ETH address you want to delete
+    // @return bool
+    function deleteFromDistributor(address _account) external returns (bool success);
+
+    // @title A function that accepts a user's transfer request (executed by the contract owner)
+    // @param bytes memory _signature
+    // @param address _requested_user
+    // @param uint256 _value
+    // @param string _nonce
+    // @return bool
+    function acceptTokenTransfer(bytes calldata _signature, address _requested_user, uint256 _value, string calldata _nonce)
+        external
+        returns (bool success);
+
+    // @title A function that generates a hash value of a request to which a user sends a token (executed by the user of the token)
+    // @params _requested_user ETH address that requested token transfer
+    // @params _value Number of tokens
+    // @params _nonce One-time string
+    // @return bytes32 Hash value
+    // @dev The user signs the hash value obtained from this function and hands it over to the owner outside the system
+    function requestTokenTransfer(address _requested_user, uint256 _value, string calldata _nonce) external view returns (bytes32);
+
+    // @title Returns whether it is a used signature
+    // @params _signature Signature string
+    // @return bool Used or not
+    function isUsedSignature(bytes calldata _signature) external view returns (bool);
+
+    // Events
+
+    // token assignment from owner to distributor
+    event Allocate(address indexed from, address indexed to, uint256 value);
+
+    // tokens from distributor to users
+    event Distribute(address indexed from, address indexed to, uint256 value);
+
+    // tokens from distributor to owner
+    event BackTo(address indexed from, address indexed to, uint256 value);
+
+    // owner accepted the token from the user
+    event Exchange(address indexed from, address indexed to, uint256 value, bytes signature, string nonce);
+
+    event AddedToDistributor(address indexed account);
+    event DeletedFromDistributor(address indexed account);
+}
+
+interface FunctionalizedERC20 {
+    function balanceOf(address who) external view returns (uint256);
+    function name() external view returns (string memory _name);
+    function symbol() external view returns (string memory _symbol);
+    function decimals() external view returns (uint8 _decimals);
+    function totalSupply() external view returns (uint256 _supply);
+    function transfer(address to, uint256 value) external returns (bool ok);
+
+    event Transfer(address indexed from, address indexed to, uint256 value);
+}
 
 contract InternalCirculationTokenImplementation is FunctionalizedERC20, InternalCirculationTokenInterface {
     // Load library
@@ -285,6 +535,37 @@ contract InternalCirculationTokenImplementation is FunctionalizedERC20, Internal
 
         emit Transfer(msg.sender, _to, _value);
         return true;
+
+    }
+
+}
+
+contract InternalCirculationToken is InternalCirculationTokenImplementation {
+    address public owner;
+
+    // ---------------------------------------------
+    // Modification : Only an owner can carry out.
+    // ---------------------------------------------
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only owners can use");
+        _;
+    }
+
+    // ---------------------------------------------
+    // Constructor
+    // ---------------------------------------------
+    constructor(string memory name, string memory symbol, uint8 decimals, uint256 totalSupply) public {
+        // Initial information of token
+        _name = name;
+        _symbol = symbol;
+        _decimals = decimals;
+        _totalSupply = totalSupply * (10 ** uint256(decimals));
+
+        // The owner address is maintained.
+        owner = msg.sender;
+
+        // Assign total amount to owner
+        _balances[owner] = _totalSupply;
 
     }
 

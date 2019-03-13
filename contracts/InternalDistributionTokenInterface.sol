@@ -1,6 +1,6 @@
 pragma solidity ^0.5.0;
 
-interface InternalCirculationTokenInterface {
+interface InternalDistributionTokenInterface {
     // Required methods
 
     // @title Is the ETH address of the argument the distributor of the token?

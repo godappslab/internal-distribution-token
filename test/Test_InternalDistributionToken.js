@@ -1,6 +1,6 @@
-const InternalCirculationToken = artifacts.require('InternalCirculationToken');
+const InternalDistributionToken = artifacts.require('InternalDistributionToken');
 
-contract('[TEST] InternalCirculationToken', async (accounts) => {
+contract('[TEST] InternalDistributionToken', async (accounts) => {
     const totalSupply = 1000000000;
     const alocateValue = 100;
     const distValue = 10;
@@ -23,7 +23,7 @@ contract('[TEST] InternalCirculationToken', async (accounts) => {
     };
 
     it(`Initial state is the owner address token holding number: ${totalSupply}`, async () => {
-        const token = await InternalCirculationToken.deployed();
+        const token = await InternalDistributionToken.deployed();
 
         const ownerBalance = await token.balanceOf.call(ownerAddress);
         const distBalance = await token.balanceOf.call(distributorAddress);
@@ -38,7 +38,7 @@ contract('[TEST] InternalCirculationToken', async (accounts) => {
     });
 
     it('Register as a distributor', async () => {
-        const token = await InternalCirculationToken.deployed();
+        const token = await InternalDistributionToken.deployed();
 
         const before = await token.isDistributor.call(distributorAddress);
         assert.equal(before, false);
@@ -49,7 +49,7 @@ contract('[TEST] InternalCirculationToken', async (accounts) => {
     });
 
     it(`Assign token to distributor (Number of tokens: ${alocateValue})`, async () => {
-        const token = await InternalCirculationToken.deployed();
+        const token = await InternalDistributionToken.deployed();
 
         await token.transfer.sendTransaction(distributorAddress, alocateValue);
 
@@ -66,7 +66,7 @@ contract('[TEST] InternalCirculationToken', async (accounts) => {
     });
 
     it(`A token from the distributor to the user (Number of tokens: ${distValue})`, async () => {
-        const token = await InternalCirculationToken.deployed();
+        const token = await InternalDistributionToken.deployed();
 
         await token.transfer.sendTransaction(userAddress, distValue, { from: distributorAddress });
 
@@ -83,7 +83,7 @@ contract('[TEST] InternalCirculationToken', async (accounts) => {
     });
 
     it(`Test token move from user to other user (Number of tokens: ${otherValue})`, async () => {
-        const token = await InternalCirculationToken.deployed();
+        const token = await InternalDistributionToken.deployed();
 
         try {
             await token.transfer.sendTransaction(otherAddress, otherValue, { from: userAddress });

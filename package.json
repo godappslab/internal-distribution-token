@@ -1,7 +1,7 @@
 {
-  "name": "internal-circulation-token",
+  "name": "internal-distribution-token",
   "version": "0.1.0",
-  "description": "Implementation of internal circulation token",
+  "description": "Implementation of internal distribution token",
   "private": true,
   "main": "truffle-config.js",
   "directories": {

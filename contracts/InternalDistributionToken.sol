@@ -1,8 +1,8 @@
 pragma solidity ^0.5.0;
 
-import "./InternalCirculationTokenImplementation.sol";
+import "./InternalDistributionTokenImplementation.sol";
 
-contract InternalCirculationToken is InternalCirculationTokenImplementation {
+contract InternalDistributionToken is InternalDistributionTokenImplementation {
     address public owner;
 
     // ---------------------------------------------
