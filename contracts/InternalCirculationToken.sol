@@ -1,4 +1,4 @@
-pragma solidity >=0.4.24<0.6.0;
+pragma solidity ^0.5.0;
 
 import "./InternalCirculationTokenImplementation.sol";
 
@@ -16,7 +16,7 @@ contract InternalCirculationToken is InternalCirculationTokenImplementation {
     // ---------------------------------------------
     // Constructor
     // ---------------------------------------------
-    constructor(string name, string symbol, uint8 decimals, uint256 totalSupply) public {
+    constructor(string memory name, string memory symbol, uint8 decimals, uint256 totalSupply) public {
         // Initial information of token
         _name = name;
         _symbol = symbol;
@@ -29,13 +29,6 @@ contract InternalCirculationToken is InternalCirculationTokenImplementation {
         // Assign total amount to owner
         _balances[owner] = _totalSupply;
 
-    }
-
-    // ---------------------------------------------
-    // Destruction of a contract (only owner)
-    // ---------------------------------------------
-    function destory() public onlyOwner {
-        selfdestruct(owner);
     }
 
 }

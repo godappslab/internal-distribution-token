@@ -1,4 +1,4 @@
-pragma solidity >=0.4.24<0.6.0;
+pragma solidity ^0.5.0;
 
 interface InternalCirculationTokenInterface {
     // Required methods
@@ -24,7 +24,9 @@ interface InternalCirculationTokenInterface {
     // @param uint256 _value
     // @param string _nonce
     // @return bool
-    function acceptTokenTransfer(bytes _signature, address _requested_user, uint256 _value, string _nonce) external returns (bool success);
+    function acceptTokenTransfer(bytes calldata _signature, address _requested_user, uint256 _value, string calldata _nonce)
+        external
+        returns (bool success);
 
     // @title A function that generates a hash value of a request to which a user sends a token (executed by the user of the token)
     // @params _requested_user ETH address that requested token transfer
@@ -32,12 +34,12 @@ interface InternalCirculationTokenInterface {
     // @params _nonce One-time string
     // @return bytes32 Hash value
     // @dev The user signs the hash value obtained from this function and hands it over to the owner outside the system
-    function requestTokenTransfer(address _requested_user, uint256 _value, string _nonce) external view returns (bytes32);
+    function requestTokenTransfer(address _requested_user, uint256 _value, string calldata _nonce) external view returns (bytes32);
 
     // @title Returns whether it is a used signature
     // @params _signature Signature string
     // @return bool Used or not
-    function isUsedSignature(bytes _signature) external view returns (bool);
+    function isUsedSignature(bytes calldata _signature) external view returns (bool);
 
     // Events
 

@@ -1,9 +1,9 @@
-pragma solidity >=0.4.24<0.6.0;
+pragma solidity ^0.5.0;
 
-import "zeppelin-solidity/contracts/math/SafeMath.sol";
-import "zeppelin-solidity/contracts/AddressUtils.sol";
-import "zeppelin-solidity/contracts/ECRecovery.sol";
-import "zeppelin-solidity/contracts/access/rbac/Roles.sol";
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+import "openzeppelin-solidity/contracts/Utils/Address.sol";
+import "openzeppelin-solidity/contracts/cryptography/ECDSA.sol";
+import "openzeppelin-solidity/contracts/access/Roles.sol";
 
 import "./InternalCirculationTokenInterface.sol";
 import "./FunctionalizedERC20.sol";
@@ -11,8 +11,8 @@ import "./FunctionalizedERC20.sol";
 contract InternalCirculationTokenImplementation is FunctionalizedERC20, InternalCirculationTokenInterface {
     // Load library
     using SafeMath for uint256;
-    using AddressUtils for address;
-    using ECRecovery for bytes32;
+    using Address for address;
+    using ECDSA for bytes32;
     using Roles for Roles.Role;
 
     // Token properties
@@ -51,12 +51,12 @@ contract InternalCirculationTokenImplementation is FunctionalizedERC20, Internal
     }
 
     // Function to access name of token .
-    function name() external view returns (string) {
+    function name() external view returns (string memory) {
         return _name;
     }
 
     // Function to access symbol of token .
-    function symbol() external view returns (string) {
+    function symbol() external view returns (string memory) {
         return _symbol;
     }
 
@@ -136,7 +136,11 @@ contract InternalCirculationTokenImplementation is FunctionalizedERC20, Internal
     // @param uint256 _value
     // @param string _nonce
     // @return bool
-    function acceptTokenTransfer(bytes _signature, address _requested_user, uint256 _value, string _nonce) external onlyOwner returns (bool success) {
+    function acceptTokenTransfer(bytes calldata _signature, address _requested_user, uint256 _value, string calldata _nonce)
+        external
+        onlyOwner
+        returns (bool success)
+    {
         // argument `_signature` is not yet used
         require(usedSignatures[_signature] == false);
 
@@ -176,7 +180,7 @@ contract InternalCirculationTokenImplementation is FunctionalizedERC20, Internal
     // @params _nonce One-time string
     // @return bytes32 Hash value
     // @dev The user signs the hash value obtained from this function and hands it over to the owner outside the system
-    function requestTokenTransfer(address _requested_user, uint256 _value, string _nonce) external view returns (bytes32) {
+    function requestTokenTransfer(address _requested_user, uint256 _value, string calldata _nonce) external view returns (bytes32) {
         return keccak256(abi.encodePacked(address(this), bytes4(0x8210d627), _requested_user, _value, _nonce));
     }
 
@@ -226,7 +230,7 @@ contract InternalCirculationTokenImplementation is FunctionalizedERC20, Internal
     // @title Returns whether it is a used signature
     // @params _signature Signature string
     // @return bool Used or not
-    function isUsedSignature(bytes _signature) external view returns (bool) {
+    function isUsedSignature(bytes calldata _signature) external view returns (bool) {
         return usedSignatures[_signature];
     }
 

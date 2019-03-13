@@ -1,80 +1,92 @@
-pragma solidity >=0.4.24<0.6.0;
+pragma solidity ^0.5.0;
 
 /**
  * @title SafeMath
- * @dev Math operations with safety checks that throw on error
+ * @dev Unsigned math operations with safety checks that revert on error
  */
 library SafeMath {
+    /**
+    * @dev Multiplies two unsigned integers, reverts on overflow.
+    */
+    function mul(uint256 a, uint256 b) internal pure returns (uint256) {
+        // Gas optimization: this is cheaper than requiring 'a' not being zero, but the
+        // benefit is lost if 'b' is also tested.
+        // See: https://github.com/OpenZeppelin/openzeppelin-solidity/pull/522
+        if (a == 0) {
+            return 0;
+        }
 
-  /**
-  * @dev Multiplies two numbers, throws on overflow.
-  */
-  function mul(uint256 _a, uint256 _b) internal pure returns (uint256 c) {
-    // Gas optimization: this is cheaper than asserting 'a' not being zero, but the
-    // benefit is lost if 'b' is also tested.
-    // See: https://github.com/OpenZeppelin/openzeppelin-solidity/pull/522
-    if (_a == 0) {
-      return 0;
+        uint256 c = a * b;
+        require(c / a == b);
+
+        return c;
     }
 
-    c = _a * _b;
-    assert(c / _a == _b);
-    return c;
-  }
+    /**
+    * @dev Integer division of two unsigned integers truncating the quotient, reverts on division by zero.
+    */
+    function div(uint256 a, uint256 b) internal pure returns (uint256) {
+        // Solidity only automatically asserts when dividing by 0
+        require(b > 0);
+        uint256 c = a / b;
+        // assert(a == b * c + a % b); // There is no case in which this doesn't hold
 
-  /**
-  * @dev Integer division of two numbers, truncating the quotient.
-  */
-  function div(uint256 _a, uint256 _b) internal pure returns (uint256) {
-    // assert(_b > 0); // Solidity automatically throws when dividing by 0
-    // uint256 c = _a / _b;
-    // assert(_a == _b * c + _a % _b); // There is no case in which this doesn't hold
-    return _a / _b;
-  }
+        return c;
+    }
 
-  /**
-  * @dev Subtracts two numbers, throws on overflow (i.e. if subtrahend is greater than minuend).
-  */
-  function sub(uint256 _a, uint256 _b) internal pure returns (uint256) {
-    assert(_b <= _a);
-    return _a - _b;
-  }
+    /**
+    * @dev Subtracts two unsigned integers, reverts on overflow (i.e. if subtrahend is greater than minuend).
+    */
+    function sub(uint256 a, uint256 b) internal pure returns (uint256) {
+        require(b <= a);
+        uint256 c = a - b;
 
-  /**
-  * @dev Adds two numbers, throws on overflow.
-  */
-  function add(uint256 _a, uint256 _b) internal pure returns (uint256 c) {
-    c = _a + _b;
-    assert(c >= _a);
-    return c;
-  }
+        return c;
+    }
+
+    /**
+    * @dev Adds two unsigned integers, reverts on overflow.
+    */
+    function add(uint256 a, uint256 b) internal pure returns (uint256) {
+        uint256 c = a + b;
+        require(c >= a);
+
+        return c;
+    }
+
+    /**
+    * @dev Divides two unsigned integers and returns the remainder (unsigned integer modulo),
+    * reverts when dividing by zero.
+    */
+    function mod(uint256 a, uint256 b) internal pure returns (uint256) {
+        require(b != 0);
+        return a % b;
+    }
 }
 
 /**
  * Utility library of inline functions on addresses
  */
-library AddressUtils {
-
-  /**
-   * Returns whether the target address is a contract
-   * @dev This function will return false if invoked during the constructor of a contract,
-   * as the code is not actually created until after the constructor finishes.
-   * @param _addr address to check
-   * @return whether the target address is a contract
-   */
-  function isContract(address _addr) internal view returns (bool) {
-    uint256 size;
-    // XXX Currently there is no better way to check if there is a contract in an address
-    // than to check the size of the code at that address.
-    // See https://ethereum.stackexchange.com/a/14016/36603
-    // for more details about how this works.
-    // TODO Check this again before the Serenity release, because all addresses will be
-    // contracts then.
-    // solium-disable-next-line security/no-inline-assembly
-    assembly { size := extcodesize(_addr) }
-    return size > 0;
-  }
-
+library Address {
+    /**
+     * Returns whether the target address is a contract
+     * @dev This function will return false if invoked during the constructor of a contract,
+     * as the code is not actually created until after the constructor finishes.
+     * @param account address of the account to check
+     * @return whether the target address is a contract
+     */
+    function isContract(address account) internal view returns (bool) {
+        uint256 size;
+        // XXX Currently there is no better way to check if there is a contract in an address
+        // than to check the size of the code at that address.
+        // See https://ethereum.stackexchange.com/a/14016/36603
+        // for more details about how this works.
+        // TODO Check this again before the Serenity release, because all addresses will be
+        // contracts then.
+        // solhint-disable-next-line no-inline-assembly
+        assembly { size := extcodesize(account) }
+        return size > 0;
+    }
 }
 
 /**
@@ -84,120 +96,94 @@ library AddressUtils {
  * See https://github.com/ethereum/solidity/issues/864
  */
 
-library ECRecovery {
+library ECDSA {
+    /**
+     * @dev Recover signer address from a message by using their signature
+     * @param hash bytes32 message, the hash is the signed message. What is recovered is the signer address.
+     * @param signature bytes signature, the signature is generated using web3.eth.sign()
+     */
+    function recover(bytes32 hash, bytes memory signature) internal pure returns (address) {
+        bytes32 r;
+        bytes32 s;
+        uint8 v;
 
-  /**
-   * @dev Recover signer address from a message by using their signature
-   * @param _hash bytes32 message, the hash is the signed message. What is recovered is the signer address.
-   * @param _sig bytes signature, the signature is generated using web3.eth.sign()
-   */
-  function recover(bytes32 _hash, bytes _sig)
-    internal
-    pure
-    returns (address)
-  {
-    bytes32 r;
-    bytes32 s;
-    uint8 v;
+        // Check the signature length
+        if (signature.length != 65) {
+            return (address(0));
+        }
 
-    // Check the signature length
-    if (_sig.length != 65) {
-      return (address(0));
+        // Divide the signature in r, s and v variables
+        // ecrecover takes the signature parameters, and the only way to get them
+        // currently is to use assembly.
+        // solhint-disable-next-line no-inline-assembly
+        assembly {
+            r := mload(add(signature, 0x20))
+            s := mload(add(signature, 0x40))
+            v := byte(0, mload(add(signature, 0x60)))
+        }
+
+        // Version of signature should be 27 or 28, but 0 and 1 are also possible versions
+        if (v < 27) {
+            v += 27;
+        }
+
+        // If the version is correct return the signer address
+        if (v != 27 && v != 28) {
+            return (address(0));
+        } else {
+            return ecrecover(hash, v, r, s);
+        }
     }
 
-    // Divide the signature in r, s and v variables
-    // ecrecover takes the signature parameters, and the only way to get them
-    // currently is to use assembly.
-    // solium-disable-next-line security/no-inline-assembly
-    assembly {
-      r := mload(add(_sig, 32))
-      s := mload(add(_sig, 64))
-      v := byte(0, mload(add(_sig, 96)))
+    /**
+     * toEthSignedMessageHash
+     * @dev prefix a bytes32 value with "\x19Ethereum Signed Message:"
+     * and hash the result
+     */
+    function toEthSignedMessageHash(bytes32 hash) internal pure returns (bytes32) {
+        // 32 is the length in bytes of hash,
+        // enforced by the type signature above
+        return keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", hash));
     }
-
-    // Version of signature should be 27 or 28, but 0 and 1 are also possible versions
-    if (v < 27) {
-      v += 27;
-    }
-
-    // If the version is correct return the signer address
-    if (v != 27 && v != 28) {
-      return (address(0));
-    } else {
-      // solium-disable-next-line arg-overflow
-      return ecrecover(_hash, v, r, s);
-    }
-  }
-
-  /**
-   * toEthSignedMessageHash
-   * @dev prefix a bytes32 value with "\x19Ethereum Signed Message:"
-   * and hash the result
-   */
-  function toEthSignedMessageHash(bytes32 _hash)
-    internal
-    pure
-    returns (bytes32)
-  {
-    // 32 is the length in bytes of hash,
-    // enforced by the type signature above
-    return keccak256(
-      abi.encodePacked("\x19Ethereum Signed Message:\n32", _hash)
-    );
-  }
 }
 
 /**
  * @title Roles
- * @author Francisco Giordano (@frangio)
  * @dev Library for managing addresses assigned to a Role.
- * See RBAC.sol for example usage.
  */
 library Roles {
-  struct Role {
-    mapping (address => bool) bearer;
-  }
+    struct Role {
+        mapping (address => bool) bearer;
+    }
 
-  /**
-   * @dev give an address access to this role
-   */
-  function add(Role storage _role, address _addr)
-    internal
-  {
-    _role.bearer[_addr] = true;
-  }
+    /**
+     * @dev give an account access to this role
+     */
+    function add(Role storage role, address account) internal {
+        require(account != address(0));
+        require(!has(role, account));
 
-  /**
-   * @dev remove an address' access to this role
-   */
-  function remove(Role storage _role, address _addr)
-    internal
-  {
-    _role.bearer[_addr] = false;
-  }
+        role.bearer[account] = true;
+    }
 
-  /**
-   * @dev check if an address has this role
-   * // reverts
-   */
-  function check(Role storage _role, address _addr)
-    internal
-    view
-  {
-    require(has(_role, _addr));
-  }
+    /**
+     * @dev remove an account's access to this role
+     */
+    function remove(Role storage role, address account) internal {
+        require(account != address(0));
+        require(has(role, account));
 
-  /**
-   * @dev check if an address has this role
-   * @return bool
-   */
-  function has(Role storage _role, address _addr)
-    internal
-    view
-    returns (bool)
-  {
-    return _role.bearer[_addr];
-  }
+        role.bearer[account] = false;
+    }
+
+    /**
+     * @dev check if an account has this role
+     * @return bool
+     */
+    function has(Role storage role, address account) internal view returns (bool) {
+        require(account != address(0));
+        return role.bearer[account];
+    }
 }
 
 interface InternalCirculationTokenInterface {
@@ -224,7 +210,9 @@ interface InternalCirculationTokenInterface {
     // @param uint256 _value
     // @param string _nonce
     // @return bool
-    function acceptTokenTransfer(bytes _signature, address _requested_user, uint256 _value, string _nonce) external returns (bool success);
+    function acceptTokenTransfer(bytes calldata _signature, address _requested_user, uint256 _value, string calldata _nonce)
+        external
+        returns (bool success);
 
     // @title A function that generates a hash value of a request to which a user sends a token (executed by the user of the token)
     // @params _requested_user ETH address that requested token transfer
@@ -232,12 +220,12 @@ interface InternalCirculationTokenInterface {
     // @params _nonce One-time string
     // @return bytes32 Hash value
     // @dev The user signs the hash value obtained from this function and hands it over to the owner outside the system
-    function requestTokenTransfer(address _requested_user, uint256 _value, string _nonce) external view returns (bytes32);
+    function requestTokenTransfer(address _requested_user, uint256 _value, string calldata _nonce) external view returns (bytes32);
 
     // @title Returns whether it is a used signature
     // @params _signature Signature string
     // @return bool Used or not
-    function isUsedSignature(bytes _signature) external view returns (bool);
+    function isUsedSignature(bytes calldata _signature) external view returns (bool);
 
     // Events
 
@@ -259,8 +247,8 @@ interface InternalCirculationTokenInterface {
 
 interface FunctionalizedERC20 {
     function balanceOf(address who) external view returns (uint256);
-    function name() external view returns (string _name);
-    function symbol() external view returns (string _symbol);
+    function name() external view returns (string memory _name);
+    function symbol() external view returns (string memory _symbol);
     function decimals() external view returns (uint8 _decimals);
     function totalSupply() external view returns (uint256 _supply);
     function transfer(address to, uint256 value) external returns (bool ok);
@@ -271,8 +259,8 @@ interface FunctionalizedERC20 {
 contract InternalCirculationTokenImplementation is FunctionalizedERC20, InternalCirculationTokenInterface {
     // Load library
     using SafeMath for uint256;
-    using AddressUtils for address;
-    using ECRecovery for bytes32;
+    using Address for address;
+    using ECDSA for bytes32;
     using Roles for Roles.Role;
 
     // Token properties
@@ -311,12 +299,12 @@ contract InternalCirculationTokenImplementation is FunctionalizedERC20, Internal
     }
 
     // Function to access name of token .
-    function name() external view returns (string) {
+    function name() external view returns (string memory) {
         return _name;
     }
 
     // Function to access symbol of token .
-    function symbol() external view returns (string) {
+    function symbol() external view returns (string memory) {
         return _symbol;
     }
 
@@ -396,7 +384,11 @@ contract InternalCirculationTokenImplementation is FunctionalizedERC20, Internal
     // @param uint256 _value
     // @param string _nonce
     // @return bool
-    function acceptTokenTransfer(bytes _signature, address _requested_user, uint256 _value, string _nonce) external onlyOwner returns (bool success) {
+    function acceptTokenTransfer(bytes calldata _signature, address _requested_user, uint256 _value, string calldata _nonce)
+        external
+        onlyOwner
+        returns (bool success)
+    {
         // argument `_signature` is not yet used
         require(usedSignatures[_signature] == false);
 
@@ -436,7 +428,7 @@ contract InternalCirculationTokenImplementation is FunctionalizedERC20, Internal
     // @params _nonce One-time string
     // @return bytes32 Hash value
     // @dev The user signs the hash value obtained from this function and hands it over to the owner outside the system
-    function requestTokenTransfer(address _requested_user, uint256 _value, string _nonce) external view returns (bytes32) {
+    function requestTokenTransfer(address _requested_user, uint256 _value, string calldata _nonce) external view returns (bytes32) {
         return keccak256(abi.encodePacked(address(this), bytes4(0x8210d627), _requested_user, _value, _nonce));
     }
 
@@ -486,7 +478,7 @@ contract InternalCirculationTokenImplementation is FunctionalizedERC20, Internal
     // @title Returns whether it is a used signature
     // @params _signature Signature string
     // @return bool Used or not
-    function isUsedSignature(bytes _signature) external view returns (bool) {
+    function isUsedSignature(bytes calldata _signature) external view returns (bool) {
         return usedSignatures[_signature];
     }
 
@@ -560,7 +552,7 @@ contract InternalCirculationToken is InternalCirculationTokenImplementation {
     // ---------------------------------------------
     // Constructor
     // ---------------------------------------------
-    constructor(string name, string symbol, uint8 decimals, uint256 totalSupply) public {
+    constructor(string memory name, string memory symbol, uint8 decimals, uint256 totalSupply) public {
         // Initial information of token
         _name = name;
         _symbol = symbol;
@@ -573,13 +565,6 @@ contract InternalCirculationToken is InternalCirculationTokenImplementation {
         // Assign total amount to owner
         _balances[owner] = _totalSupply;
 
-    }
-
-    // ---------------------------------------------
-    // Destruction of a contract (only owner)
-    // ---------------------------------------------
-    function destory() public onlyOwner {
-        selfdestruct(owner);
     }
 
 }
