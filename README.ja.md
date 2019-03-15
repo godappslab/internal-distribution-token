@@ -1,6 +1,6 @@
 # Implementation of "Internal Distribution Token"
 
-*Read this in other languages: [English](README.em.md), [日本語](README.ja.md).*
+*Read this in other languages: [English](README.en.md), [日本語](README.ja.md).*
 
 *It is under development.*
 
