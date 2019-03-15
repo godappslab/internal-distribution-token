@@ -1,6 +1,8 @@
 # Implementation of "Internal Distribution Token"
 
-Internal Distribution Token *It is under development.*
+*Read this in other languages: [English](README.md), [日本語](README.ja.md).*
+
+*It is under development.*
 
 ## Overview
 
@@ -248,23 +250,23 @@ The owner receives the following value from the user and executes the `acceptTok
 
 #### Owner assigns token to distributor
 
-![オーナーが配布者にトークンを割当](docs/sequence-diagram/from-owner-to-distributor.svg)
+![配布者がユーザーにトークン配布](docs/sequence-diagram/from-owner-to-distributor.svg)
 
 #### Distributor distributes token to user
 
-![配布者がユーザーにトークン配布](docs/sequence-diagram/from-distributor-to-user.svg)
+![配布者がオーナーにトークンを返却](docs/sequence-diagram/from-distributor-to-user.svg)
 
 #### Distributor returns token to owner
 
-![配布者がオーナーにトークンを返却](docs/sequence-diagram/from-distributor-to-owner.svg)
+![ユーザーがトークンのトークン交換の申請を行う](docs/sequence-diagram/from-distributor-to-owner.svg)
 
 #### User applies for token exchange of tokens
 
-![ユーザーがトークンのトークン交換の申請を行う](docs/sequence-diagram/request-and-accept-token-transfer.svg)
+![オーナーが配布者を追加登録](docs/sequence-diagram/request-and-accept-token-transfer.svg)
 
 #### The owner additionally registers the distributor
 
-![オーナーが配布者を追加登録](docs/sequence-diagram/add-to-distributor.svg)
+![オーナーが配布者を抹消](docs/sequence-diagram/add-to-distributor.svg)
 
 #### The owner cancels the distributor
 
