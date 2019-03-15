@@ -1,4 +1,4 @@
-# Implementation of "Internal Distribution Token"
+# Implementation Example of "Internal Distribution Token"
 
 *Read this in other languages: [English](README.en.md), [日本語](README.ja.md).*
 
@@ -6,23 +6,23 @@
 
 ## Overview
 
-Implement an internal distribution token whose distribution and its value are managed.
+As an example of an internal distribution token whose distribution and value are managed, it is developed assuming an implementation of a token that can be used as a point. The points here mean things like the points given when shopping.
 
-(For example, like shopping points you get when you shop, stamp cards ...)
-
-Tokens are realized using cryptographic currency smart contracts and related technology mechanisms.
+This token is realized using Cryptocurrency's Smart Contract and related technology mechanisms.
 
 ## Main point
 
-Provides basic functionality to realize controlled distribution within a smart contract. It also solves the issue of Transfer Fees (GAS) that occur with regular tokens.
+This token assumes the point used by shopping etc., and implements the basic function to realize in Smart Contract. It works as Dapps on Ethereum and was developed in Solidity language.
+
+In addition, with regard to the fee (GAS) that is incurred when sending a token on Ethereum, we have devised so that users who have been granted points do not need to have an ETH.
 
 ## What can be achieved by this token
 
 **Merits of realization**
 
-- Not positioned as a virtual currency (usually because the value of money is generated at the time of listing)
-- Can use cryptocurrency smart contract technology for token distribution and exchange
-- Unlike traditional tokens, they are recorded in the public chain such as Ether or EOS, ensuring security and transparency.
+- Unavailable on Cryptocurrency Exchange (cannot be remit between users)
+- Smart Contract technology can be used to distribute or exchange tokens
+- Because it is recorded in Ethereum's Public Chain, fraud prevention and transparency are secured
 - Can fix the value (price) of the token
 - There is no fee for users, so there is no need to have Ether, and you may want to spread the use of smart contracts.
 
@@ -46,7 +46,7 @@ The rough flow of tokens looks like this:
 - Distributors can be assigned tokens from the owner
 - Distributor distributes arbitrary tokens to users
 - The user query token held `balanceOf()` and the recording of the movement of the token `Transfer()` can be confirmed in the same mechanism as ERC20 token
-- User can apply for token exchange with owner ... (A)
+- The user can apply for token exchange (consumption of points) to the owner ... (A)
 - The owner can receive a token of the quantity requested by the user (B)
 
 Although information transfer from (A) to (B) is performed off-chain, an implementation example will be described later.
@@ -252,7 +252,7 @@ The owner receives the following value from the user and executes the `acceptTok
 
 ![配布者がユーザーにトークン配布](docs/sequence-diagram/from-owner-to-distributor.svg)
 
-#### Distributor distributes token to user
+#### Distributor distributes tokens to users
 
 ![配布者がオーナーにトークンを返却](docs/sequence-diagram/from-distributor-to-user.svg)
 
