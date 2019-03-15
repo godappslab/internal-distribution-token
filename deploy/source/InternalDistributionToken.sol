@@ -84,9 +84,7 @@ library Address {
         // TODO Check this again before the Serenity release, because all addresses will be
         // contracts then.
         // solhint-disable-next-line no-inline-assembly
-        assembly {
-            size := extcodesize(account)
-        }
+        assembly { size := extcodesize(account) }
         return size > 0;
     }
 }
@@ -155,7 +153,7 @@ library ECDSA {
  */
 library Roles {
     struct Role {
-        mapping(address => bool) bearer;
+        mapping (address => bool) bearer;
     }
 
     /**
@@ -188,7 +186,7 @@ library Roles {
     }
 }
 
-interface InternalCirculationTokenInterface {
+interface InternalDistributionTokenInterface {
     // Required methods
 
     // @title Is the ETH address of the argument the distributor of the token?
@@ -258,7 +256,7 @@ interface FunctionalizedERC20 {
     event Transfer(address indexed from, address indexed to, uint256 value);
 }
 
-contract InternalCirculationTokenImplementation is FunctionalizedERC20, InternalCirculationTokenInterface {
+contract InternalDistributionTokenImplementation is FunctionalizedERC20, InternalDistributionTokenInterface {
     // Load library
     using SafeMath for uint256;
     using Address for address;
@@ -540,7 +538,7 @@ contract InternalCirculationTokenImplementation is FunctionalizedERC20, Internal
 
 }
 
-contract InternalCirculationToken is InternalCirculationTokenImplementation {
+contract InternalDistributionToken is InternalDistributionTokenImplementation {
     address public owner;
 
     // ---------------------------------------------
