@@ -2,8 +2,6 @@
 
 *Read this in other languages: [English](README.md), [日本語](README.ja.md).*
 
-Internal Distribution Token
-
 *It is under development.*
 
 ## 概要
